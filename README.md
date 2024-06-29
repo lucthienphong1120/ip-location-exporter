@@ -25,7 +25,7 @@ You can use docker to deploy ip-location exporter quickly, below is an example o
 # docker-compose.yml
 services:
   ip_location_exporter:
-    image: ip_location_exporter
+    image: ltp1120/ip_location_exporter
     ports:
       - "9012:9012"
     volumes:
