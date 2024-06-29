@@ -1,6 +1,6 @@
 # Ip-location Exporter
 
-Ip-location Exporter for Prometheus expose IP to location using API
+Ip-location Exporter for Prometheus expose IP to location using public APIs to retrieve location information from IPs.
 
 API sources sample:
 + `https://www.iplocate.io/api/lookup/1.52.219.140`
@@ -10,12 +10,16 @@ API sources sample:
 
 ## Requirements and build
 
+The exporter is built with the Flask library, and also uses prometheus_client to query the prometheus server to reference IP metrics, then uses the requests library to query the public API IP-location database to get location information.
+
 ```
 pip3 install Flask requests prometheus_client
 python3 ip_location_exporter.py --prometheus_url=http://prometheus:9090
 ```
 
 ## Build with Docker
+
+You can use docker to deploy ip-location exporter quickly, below is an example of docker compose:
 
 ```
 # docker-compose.yml
@@ -29,7 +33,7 @@ services:
     command: ["python", "ip_location_exporter.py", "--prometheus_url=http://192.168.0.121:9090"]
 ```
 
-## Example
+## Example output
 
 After deploy, metrics are show at `/metrics` with port `9012` (default)
 
