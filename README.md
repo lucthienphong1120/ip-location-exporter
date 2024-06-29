@@ -1,6 +1,12 @@
 # Ip-location Exporter
 
+Ip-location Exporter for Prometheus expose IP to location using API
 
+API sources sample:
++ `https://www.iplocate.io/api/lookup/1.52.219.140`
++ `https://freegeoip.live/json/1.52.219.140`
+
+![image](https://github.com/lucthienphong1120/ip-location-exporter/assets/90561566/836e84f5-c128-4d83-bb10-81942acea43c)
 
 ## Requirements and build
 
@@ -47,3 +53,9 @@ scrape_configs:
     static_configs:
       - targets: ['ip_location_exporter:9012']
 ```
+
+## Visualize with Grafana
+
+In grafana, you just need to add query to ip-location-exporter job to get the corresponding reference, then use join table or group by to merge into a unified table.
+
+Finally you can use geomap to display data on a map based on latitude and longitude.
