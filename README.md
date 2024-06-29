@@ -1,12 +1,18 @@
-pip install Flask requests prometheus_client 
+# Ip-location Exporter
 
-Run:
+
+
+## Requirements and build
+
 ```
+pip3 install Flask requests prometheus_client
 python3 ip_location_exporter.py --prometheus_url=http://prometheus:9090
 ```
 
-Docker compose:
+## Build with Docker
+
 ```
+# docker-compose.yml
 services:
   ip_location_exporter:
     image: ip_location_exporter
@@ -17,12 +23,21 @@ services:
     command: ["python", "ip_location_exporter.py", "--prometheus_url=http://192.168.0.121:9090"]
 ```
 
+## Example
+
+After deploy, metrics are show at `/metrics` with port `9012` (default)
+
 Sample query:
 ```
 http://192.168.0.159:9012/metrics?query=fgVpnSslTunnelSrcIp
 ```
 
-Prometheus Jobs:
+![image](https://github.com/lucthienphong1120/ip-location-exporter/assets/90561566/3a085e0c-0238-4e29-a884-c7d8d983ff6d)
+
+## Prometheus Jobs
+
+On prometheus you can scrape job from ip_location_exporter as follow:
+
 ```
 scrape_configs:
   - job_name: 'ip_location_exporter'
@@ -32,4 +47,3 @@ scrape_configs:
     static_configs:
       - targets: ['ip_location_exporter:9012']
 ```
-
