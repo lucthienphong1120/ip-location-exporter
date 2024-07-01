@@ -70,4 +70,17 @@ On prometheus you can scrape job from ip_location_exporter as follow:
 
 In grafana, you just need to add query to ip-location-exporter job to get the corresponding reference, then use join table or group by to merge into a unified table.
 
+```
+# PromQL to replace labels and join metrics
+label_replace(
+  ip_location{query="fgVpnSslTunnelSrcIp"}, #input_query
+  "fgVpnSslTunnelSrcIp", #dest_label
+  "$1", #replacement
+  "ip", #src_label
+  "(.*)" #regex
+)
+```
+
 Finally you can use geomap to display data on a map based on latitude and longitude.
+
+![image](https://github.com/lucthienphong1120/ip-location-exporter/assets/90561566/1b0d0693-9dce-4667-83dc-8537567376f2)
