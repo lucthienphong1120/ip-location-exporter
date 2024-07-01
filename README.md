@@ -16,7 +16,7 @@ pip3 install Flask requests prometheus_client
 python3 ip_location_exporter.py --prometheus_url=http://prometheus:9090
 ```
 
-*P/s: You should define your APIs and Token at code for some sources!
+*P/s: You should define your APIs and Token at code for some API sources at [API_CONFIGS](./ip_location_exporter.py#L7)!
 
 ## Build with Docker
 
