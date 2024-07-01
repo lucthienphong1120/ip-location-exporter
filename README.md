@@ -30,7 +30,7 @@ services:
       - "9012:9012"
     volumes:
       - ./ip_location_exporter.py:/app/ip_location_exporter.py
-    command: ["python", "ip_location_exporter.py", "--prometheus_url=http://192.168.0.121:9090"]
+    command: ["python", "ip_location_exporter.py", "--prometheus_url=http://prometheus:9090"]
 ```
 
 ## Example output
@@ -39,23 +39,31 @@ After deploy, metrics are show at `/metrics` with port `9012` (default)
 
 Sample query:
 ```
-http://192.168.0.159:9012/metrics?query=fgVpnSslTunnelSrcIp
+http://localhost:9012/target?query=fgVpnSslTunnelSrcIp
 ```
 
-![image](https://github.com/lucthienphong1120/ip-location-exporter/assets/90561566/3a085e0c-0238-4e29-a884-c7d8d983ff6d)
+![image](https://github.com/lucthienphong1120/ip-location-exporter/assets/90561566/9692b8b0-003f-4503-97e5-940f5dc8378c)
 
 ## Prometheus Jobs
 
 On prometheus you can scrape job from ip_location_exporter as follow:
 
 ```
-scrape_configs:
-  - job_name: 'ip_location_exporter'
-    metrics_path: /metrics
-    params:
-      query: [fgVpnSslTunnelSrcIp]
+- job_name: 'ip_location_exporter'
+    scrape_interval: 1m
+    scrape_timeout: 30s
     static_configs:
-      - targets: ['ip_location_exporter:9012']
+      - targets: ["fgVpnSslTunnelSrcIp"]
+      - targets: ["fgVpnTunEntLocGwyIp"]
+      - targets: ["fgVpnTunEntRemGwyIp"]
+    metrics_path: /metrics
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 'ip_location_exporter:9012' # IP Location Exporter
 ```
 
 ## Visualize with Grafana
