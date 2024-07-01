@@ -4,18 +4,70 @@ from prometheus_client import CollectorRegistry, Gauge, generate_latest
 
 app = Flask(__name__)
 
-API_URLS = ['https://www.iplocate.io/api/lookup/', 'https://freegeoip.live/json/']
+API_CONFIGS = [
+    {
+        'url': 'https://ipinfo.io/',
+        'key_name': 'token',
+        'key_value': '#',
+        'fields': {
+            'ip': 'ip',
+            'country_code': 'country',
+            'city': 'city',
+            'loc': 'loc'  # loc contains both latitude and longitude
+        }
+    },
+    {
+        'url': 'https://www.iplocate.io/api/lookup/',
+        'key_name': 'apikey',
+        'key_value': '#',
+        'fields': {
+            'ip': 'ip',
+            'country_code': 'country_code',
+            'city': 'city',
+            'latitude': 'latitude',
+            'longitude': 'longitude'
+        }
+    },
+    {
+        'url': 'https://freegeoip.live/json/',
+        'key_name': '',
+        'key_value': '',
+        'fields': {
+            'ip': 'ip',
+            'country_code': 'country_code',
+            'city': 'city',
+            'latitude': 'latitude',
+            'longitude': 'longitude'
+        }
+    },
+]
 
 def get_location(ip):
-    for api_url in API_URLS:
+    for api in API_CONFIGS:
         try:
-            response = requests.get(f'{api_url}{ip}')
+            url = f"{api['url']}{ip}"
+            if api['key_name'] and api['key_value']:
+                url += f"?{api['key_name']}={api['key_value']}"
+            response = requests.get(url)
             response.raise_for_status()
             data = response.json()
-            if 'country_code' in data and 'city' in data:
-                return data
+            fields = api['fields']
+
+            if 'loc' in fields:  # Special case for APIs with combined latitude and longitude
+                loc = data[fields['loc']]
+                latitude, longitude = loc.split(',')
+                return {
+                    'ip': data[fields['ip']],
+                    'country_code': data[fields['country_code']],
+                    'city': data[fields['city']],
+                    'latitude': float(latitude),
+                    'longitude': float(longitude)
+                }
+            else:
+                if all(field in data for field in fields.values()):
+                    return {key: data[field] for key, field in fields.items()}
         except requests.RequestException as e:
-            print(f"Error fetching data from {api_url}: {e}")
+            print(f"Error fetching data from {api['url']}: {e}")
     return None  # Return None if all APIs fail
 
 def get_ips_from_prometheus(query, prometheus_url, metric_label):
@@ -26,16 +78,18 @@ def get_ips_from_prometheus(query, prometheus_url, metric_label):
 
 @app.route('/metrics')
 def metrics():
-    query = request.args.get('query')
-    metric_label = request.args.get('metrics', query)
+    target = request.args.get('target')
+    metric_label = request.args.get('metrics', target)
 
-    if not query or not metric_label:
-        abort(400, description="Missing required query parameters 'query' and/or 'metrics'")
-    
+    if not target:
+        abort(400, description="Missing required parameters 'target' and/or 'metrics'")
+
+    query = target
+
     ips = get_ips_from_prometheus(query, prometheus_url, metric_label)
     registry = CollectorRegistry()
     g = Gauge('ip_location', 'IP Location Metrics', ['ip', 'country_code', 'city', 'latitude', 'longitude'], registry=registry)
-    
+
     for ip in ips:
         location = get_location(ip)
         if location:
@@ -54,8 +108,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     prometheus_url = args.prometheus_url
 
-    print(f"[Info] Metrics endpoint show at /metrics?query=<metrics>&metrics=<optional-label>")
-    print(f"[Exp] http://localhost:{args.port}/metrics?query=fgVpnSslTunnelSrcIp")
+    print(f"[Info] Metrics endpoint available at /metrics?target=<query>&metrics=<optional-label>")
+    print(f"[Example] http://localhost:{args.port}/metrics?target=fgVpnSslTunnelSrcIp")
 
     app.run(host='0.0.0.0', port=args.port, debug=args.debug)
-
