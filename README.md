@@ -1,6 +1,6 @@
-# [Ip-location Exporter](https://github.com/lucthienphong1120/ip-location-exporter)
+# [IP-Location Exporter](https://github.com/lucthienphong1120/ip-location-exporter)
 
-Ip-location Exporter for Prometheus expose IP to location using public APIs to retrieve location information from IPs.
+IP-Location Exporter for Prometheus expose IP to location using public APIs to retrieve location information from IPs.
 
 API sources:
 + `https://ipinfo.io/`
