@@ -76,12 +76,15 @@ In grafana, you just need to add query to ip-location-exporter job to get the co
 ```
 # PromQL to replace labels and join metrics
 label_replace(
-  ip_location{query="fgVpnSslTunnelSrcIp"}, #input_query
-  "fgVpnSslTunnelSrcIp", #dest_label
+  fgVpnSslTunnelSrcIp{}, #input_query
+  "ip", #dest_label
   "$1", #replacement
-  "ip", #src_label
+  "fgVpnSslTunnelSrcIp", #src_label
   "(.*)" #regex
 )
+or
+label_join(fgVpnSslTunnelSrcIp, "ip", ",", "fgVpnSslTunnelSrcIp")
+-> add new label "ip" from label "fgVpnSslTunnelSrcIp" of metrics fgVpnSslTunnelSrcIp{}
 ```
 
 Finally you can use geomap to display data on a map based on latitude and longitude.
