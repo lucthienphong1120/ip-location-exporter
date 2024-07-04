@@ -16,6 +16,8 @@ pip3 install Flask requests prometheus_client
 python3 ip_location_exporter.py --prometheus_url=http://prometheus:9090
 ```
 
+You can defined flag `--push-gateway=http://pushgateway:9091` to send metrics to Pushgateway
+
 *P/s: You should define your APIs and Token at code for some API sources at [API_CONFIGS](./ip_location_exporter.py#L7)!
 
 ## Build with Docker
@@ -51,8 +53,8 @@ On prometheus you can scrape job from ip_location_exporter as follow:
 
 ```
 - job_name: 'ip_location_exporter'
-    scrape_interval: 1m
-    scrape_timeout: 30s
+    scrape_interval: 5m
+    scrape_timeout: 2m
     static_configs:
       - targets: ["fgVpnSslTunnelSrcIp"]
       - targets: ["fgVpnTunEntLocGwyIp"]
