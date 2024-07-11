@@ -36,6 +36,12 @@ services:
     command: ["python", "ip_location_exporter.py", "--prometheus_url=http://prometheus:9090"]
 ```
 
+Quick deploy with Docker:
+
+```
+docker run -p 9012:9012 -v .:/app ltp1120/ip_location_exporter python ip_location_exporter.py --prometheus_url=http://prometheus:9090
+```
+
 ## Example output
 
 After deploy, metrics are show at `/metrics` with port `9012` (default)
