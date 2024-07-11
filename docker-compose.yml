@@ -5,4 +5,4 @@ services:
       - "9012:9012"
     volumes:
       - ./ip_location_exporter.py:/app/ip_location_exporter.py
-    command: ["python", "ip_location_exporter.py", "--prometheus_url=http://192.168.0.121:9090"]
+    command: ["python", "ip_location_exporter.py", "--prometheus_url=http://prometheus:9090"]
