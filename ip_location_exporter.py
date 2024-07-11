@@ -42,8 +42,9 @@ API_CONFIGS = [
     },
 ]
 
-def get_location(ip):
-    for api in API_CONFIGS:
+def get_location(ip, specific_api=None):
+    apis = [specific_api] if specific_api else API_CONFIGS
+    for api in apis:
         try:
             url = f"{api['url']}{ip}"
             if api['key_name'] and api['key_value']:
@@ -120,17 +121,25 @@ def home():
         <h3>Lookup IP</h3>
         <form action="/lookup" method="get">
           <label>IP:</label>&nbsp;<input type="text" name="ip" placeholder="Enter IP address" value=""><br>
+          <label>API:</label>&nbsp;<select name="api">
+            <option value="">Default</option>
+            {% for api in apis %}
+            <option value="{{ loop.index0 }}">{{ api['url'] }}</option>
+            {% endfor %}
+          </select><br>
           <input type="submit" value="Lookup">
         </form>
       </main>
     </body>
     </html>
-    ''')
+    ''', apis=API_CONFIGS)
 
 @app.route('/metrics')
 def metrics():
     target = request.args.get('target')
     metric_label = request.args.get('metrics', target)
+    api_index = request.args.get('api')
+
     if metric_label == '':
         metric_label = target
 
@@ -142,11 +151,19 @@ def metrics():
     ips = get_ips_from_prometheus(query, prometheus_url, metric_label)
     registry = CollectorRegistry()
     g = Gauge('ip_location', 'IP Location Metrics', ['ip', 'country_code', 'city', 'latitude', 'longitude'], registry=registry)
+    api_gauge = Gauge('ip_location_api', 'API used for IP location', ['ip', 'api_url'], registry=registry)
 
     for ip in ips:
-        location = get_location(ip)
+        if api_index:
+            location = get_location(ip, API_CONFIGS[int(api_index)])
+            api_url = API_CONFIGS[int(api_index)]['url']
+        else:
+            location = get_location(ip)
+            api_url = "Default"
+
         if location:
             g.labels(ip=ip, country_code=location['country_code'], city=location['city'], latitude=location['latitude'], longitude=location['longitude']).set(1)
+            api_gauge.labels(ip=ip, api_url=api_url).set(1)
         else:
             print(f"Failed to get location for IP: {ip}")
 
@@ -159,10 +176,16 @@ def metrics():
 @app.route('/lookup')
 def lookup():
     ip = request.args.get('ip')
+    api_index = request.args.get('api')
+
     if not ip:
         abort(400, description="Missing required parameter 'ip'")
 
-    location = get_location(ip)
+    if api_index:
+        location = get_location(ip, API_CONFIGS[int(api_index)])
+    else:
+        location = get_location(ip)
+
     if location:
         return jsonify(location)
     else:
