@@ -42,6 +42,10 @@ Quick deploy with Docker:
 docker run -p 9012:9012 -v .:/app ltp1120/ip_location_exporter python ip_location_exporter.py --prometheus_url=http://prometheus:9090
 ```
 
+Screenshot:
+
+![image](https://github.com/lucthienphong1120/ip-location-exporter/assets/90561566/84703084-8803-4f76-b95d-5338d52e3048)
+
 ## Example output
 
 After deploy, metrics are show at `/metrics` with port `9012` (default)
