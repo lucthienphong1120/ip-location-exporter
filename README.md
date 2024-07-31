@@ -52,7 +52,7 @@ After deploy, metrics are show at `/metrics` with port `9012` (default)
 
 Sample query:
 ```
-http://localhost:9012/target?query=fgVpnSslTunnelSrcIp
+http://localhost:9012/metrics?target=fgVpnSslTunnelSrcIp
 ```
 
 ![image](https://github.com/lucthienphong1120/ip-location-exporter/assets/90561566/9692b8b0-003f-4503-97e5-940f5dc8378c)
