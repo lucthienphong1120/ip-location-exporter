@@ -32,7 +32,7 @@ services:
     ports:
       - "9012:9012"
     volumes:
-      - ./ip_location_exporter.py:/app/ip_location_exporter.py
+      - .:/app
     command: ["python", "ip_location_exporter.py", "--prometheus_url=http://prometheus:9090"]
 ```
 
@@ -63,8 +63,8 @@ On prometheus you can scrape job from ip_location_exporter as follow:
 
 ```
 - job_name: 'ip_location_exporter'
-    scrape_interval: 5m
-    scrape_timeout: 2m
+    scrape_interval: 1m
+    scrape_timeout: 30s
     static_configs:
       - targets: ["fgVpnSslTunnelSrcIp"]
       - targets: ["fgVpnTunEntLocGwyIp"]
