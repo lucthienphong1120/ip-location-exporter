@@ -3,6 +3,8 @@ from flask import Flask, request, Response, abort, render_template_string, jsoni
 from prometheus_client import CollectorRegistry, Gauge, generate_latest, push_to_gateway, delete_from_gateway
 
 app = Flask(__name__)
+username = 'admin'
+password = 'password'
 
 API_CONFIGS = [
     {
@@ -72,7 +74,11 @@ def get_location(ip, specific_api=None):
     return None  # Return None if all APIs fail
 
 def get_ips_from_prometheus(query, prometheus_url, metric_label):
-    response = requests.get(f'{prometheus_url}/api/v1/query', params={'query': query})
+    response = requests.get(
+        f'{prometheus_url}/api/v1/query',
+        params={'query': query},
+        auth=(username, password)  # Basic Auth
+    )
     result = response.json()
     ips = [item['metric'][metric_label] for item in result['data']['result']]
     return ips
